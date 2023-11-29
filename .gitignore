@@ -1,3 +1,4 @@
 /tests/__pycache__
 /tests/sim_build
 /tests/spiTest.vcd
+/tests/results.xml
