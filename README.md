@@ -6,4 +6,4 @@ GitHub repository: https://github.com/pipermintwala/cocotbext-safeSpi
 
 [SafeSPI](https://safespi.org/) interface models for [cocotb](https://github.com/cocotb/cocotb).
 
-Initial build interface for only master
+Initial build interface only for the master's side
