@@ -13,9 +13,9 @@ async def dut_test(dut):
     for i in testframes:
         frame = Frame(i)
         await master.write(frame)
-        response = await master.read()
+        response = await master.read(True)
         print(hex(i))
         if response:
-            print(hex(response))
+            response.print()
         await master.wait()
         await master.wait()

@@ -96,12 +96,18 @@ class Frame:
         self.editFramevalue(crc, start, end)
 
     def crcCheck(self):
+        """checks crc of the frame , prints an error message in case of crc mismatch along with a 0"""
         crc = self.crcCalc()
         start = self.crcEnd - 1
         end = start - self.crcInit.bit_length() + 1
         crcGiven = self.readBitsvalue(start, end)
         if crc != crcGiven:
-            print("\nCRC CHECKSUM ERROR\n")
+            print("\n!!!CRC CHECKSUM ERROR!!!\n")
+            return 0
+        return 1
+
+    def print(self):
+        print(hex(self.data))
 
 
 class SpiBus(Bus):
@@ -194,13 +200,13 @@ class SpiMaster:
         self.sync.set()
         self._idle.clear()
 
-    async def read(self):
+    async def read(self, crcCheck=False):
         while self.empty_rx():
             self.sync.clear()
             await self.sync.wait()
-        return self.read_nowait()
+        return self.read_nowait(crcCheck)
 
-    def read_nowait(self):
+    def read_nowait(self, crcCheck=False):
         if self._config.cpha:
             reg = self.queue_rx.pop()
         else:
@@ -209,7 +215,10 @@ class SpiMaster:
             except Exception:
                 print("Wait for next frame for response")
                 return
-        return reg
+        frame = Frame(reg, self._config, True)
+        if crcCheck:
+            frame.crcCheck()
+        return frame
 
     def count_tx(self):
         return len(self.queue_tx)
