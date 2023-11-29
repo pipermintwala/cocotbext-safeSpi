@@ -1,4 +1,4 @@
-from cocotbext.safeSpi import Frame, SpiConfig, SpiBus, SpiMaster
+from safeSpi import Frame, SpiConfig, SpiBus, SpiMaster
 from cocotb.triggers import Timer
 import cocotb
 

@@ -1,0 +1,6 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1701264048" />
+    <testcase name="dut_test" classname="test" file="/home/sati/Documents/verlog/cocotbext-safeSpi/tests/test.py" lineno="8" time="0.0479280948638916" sim_time_ns="6805.001" ratio_time="141983.5488834921" />
+  </testsuite>
+</testsuites>
