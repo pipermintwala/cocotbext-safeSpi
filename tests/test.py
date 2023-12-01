@@ -1,4 +1,4 @@
-from safeSpi import Frame, SpiConfig, SpiBus, SpiMaster
+from cocotbext.safeSpi import Frame, SpiConfig, SpiBus, SpiMaster
 from cocotb.triggers import Timer
 import cocotb
 
@@ -11,9 +11,9 @@ async def dut_test(dut):
     bus = SpiBus.from_entity(dut)
     master = SpiMaster(bus, config)
     for i in testframes:
-        frame = Frame(i)
-        await master.write(frame)
-        response = await master.read(True)
+        frame = Frame(i, isInframe=False, isResponse=True)
+        await master.write(frame=frame, addCrc=True)
+        response = await master.read()
         print(hex(i))
         if response:
             response.print()

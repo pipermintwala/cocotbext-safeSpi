@@ -1,6 +1,6 @@
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
-VERILOG_SOURCES += $(PWD)/../hdl/spi.v
+VERILOG_SOURCES += $(PWD)/hdl/spi.v
 VERILOG_SOURCES += $(PWD)/wrappers/spi_test.v
 
 dut:

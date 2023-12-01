@@ -2,3 +2,5 @@
 /tests/sim_build
 /tests/spiTest.vcd
 /tests/results.xml
+/tests/__pycache__
+/cocotbext_safeSpi.egg-info

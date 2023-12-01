@@ -1,0 +1,54 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools>=61",
+  "setuptools_scm[toml]>=6.2",
+  "wheel",
+]
+
+[project]
+name = "cocotbext-safeSpi"
+description = "safeSpi master interface modules for cocotb"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Shashank Sati", email = "shashanksati123@gmail.com"},
+]
+requires-python = ">=3.7"
+classifiers = [
+    "Development Status :: 1 - Alpha",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+]
+dynamic = [
+  "version",
+]
+dependencies = [
+  "cocotb>=1.6",
+  "cocotb-bus>=0.2.1",
+]
+[project.urls]
+repository = "https://github.com/pipermintwala/cocotbext-safeSpi"
+
+
+[tool.setuptools_scm]
+write_to = "cocotbext/safeSpi/_version.py"
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]
+addopts = "--import-mode importlib"
+
+[tool.pdm]
+[tool.pdm.dev-dependencies]
+test = [
+    "pytest>=7.2.1",
+    "cocotb-test>=0.2.4",
+    "pytest-xdist>=3.2.0",
+]
+lint = [
+    "flake8>=5.0.4",
+]

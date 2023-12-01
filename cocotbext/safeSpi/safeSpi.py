@@ -21,13 +21,13 @@ class Frame:
         if self.isInframe:
             self.crcInit = 0b111
             if self.isResponse:
-                self.crcStart, self.crcEnd = 26, 3
+                self.crcStart, self.crcEnd = 26, 3  # In-frame  response
             else:
-                self.crcStart, self.crcEnd = 31, 5
+                self.crcStart, self.crcEnd = 31, 5  # In-frame  command
 
         else:
             self.crcInit = 0b101
-            self.crcStart, self.crcEnd = 31, 3
+            self.crcStart, self.crcEnd = 31, 3  # Out-of-frame
 
     def readBits(self, start, end, frame):
         """Reading bitvalues from a frame,
