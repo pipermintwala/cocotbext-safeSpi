@@ -5,3 +5,4 @@
 /tests/__pycache__
 /cocotbext_safeSpi.egg-info
 /cocotbext/safeSpi/__pycache__
+/cocotbext/safeSpi/_version.py
