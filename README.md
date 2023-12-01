@@ -11,9 +11,7 @@ Initial build, interface for the master's side
 ## Documentation
 
 The classes `SpiConfig` and `SpiMaster` are largely based on schang412's [repo](https://github.com/schang412/cocotbext-spi).
-To use these classes simply save the safeSpi.py in your tests folder and import them, example is in the tests folder.
 
-### Installation
 
 Clone the github repo and use the following command to install the modules:
 
