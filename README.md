@@ -44,7 +44,7 @@ Print the hex value of the frame:
 
     frame.print()
 
-Perform CRC check on the frames data:
+Perform CRC check on the frame's data:
 
     frame.crcCheck()
 
