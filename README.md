@@ -12,6 +12,7 @@ Initial build, interface for the master's side
 
 The classes `SpiConfig` and `SpiMaster` are largely based on schang412's [repo](https://github.com/schang412/cocotbext-spi).
 
+### Installation
 
 Clone the github repo and use the following command to install the modules:
 
