@@ -12,7 +12,11 @@ import logging
 
 
 class Frame:
-    def __init__(self, data, isInframe=False, isResponse=False):
+    def __init__(self, data: int, isInframe=False, isResponse=False):
+        """Frame class, handles the safeSpi frames.
+        data: 32 bit data inside the frame,
+        isInframe: whether the frame is in or out-of-frame,
+        isResponse: whether the frame is a command or a response frame."""
         self.data = data
         self.isInframe = isInframe
         self.isResponse = isResponse
@@ -30,20 +34,24 @@ class Frame:
             self.crcStart, self.crcEnd = 31, 3  # Out-of-frame
 
     def readBits(self, start, end, frame):
-        """Reading bitvalues from a frame,
-        bitpositions start from 0"""
+        """Reading bitvalues from a frame(data:int) given by the user,
+        bitpositions start from 0.
+        start and stop bitposition decide the slicing of the frame."""
         bits = frame >> end
         ones = (2 ** (start + 1 - end)) - 1
         return bits & ones
 
     def readBitsvalue(self, start, end):
         """Reading bitvalues from the frame class,
-        bitpositions start from 0"""
+        bitpositions start from 0.
+        start and stop bitposition decide the range of slicing of the frame."""
         return self.readBits(start, end, self.data)
 
     def editFrame(self, newData, start, end, frame):
         """Creating/Editing frames,
-        bitpostions start from 0.returns a copy of the edited frame"""
+        bitpostions start from 0.Returns a copy of the edited frame.
+        Start and stop bits decide where the group of bits will be added/replaced.
+        Returns group of bits."""
         length = self.width
         start = start + 1
         newData = newData << end  # ends at end=end
@@ -53,12 +61,16 @@ class Frame:
         return frame
 
     def editFramevalue(self, newData, start, end):
-        """edits the data value in the frame class"""
+        """Creating/Editing frames,
+        bitpostions start from 0.Returns a copy of the edited frame.
+        Start and stop bits decide where the group of bits will be added/replaced.
+        Edits the data in the frame class."""
         frame = self.data
         self.data = self.editFrame(newData, start, end, frame)
 
     def crcCalc(self):
-        """Calculate crc for the bits over the frame"""
+        """Calculate CRC for the bits over the frame class.
+        Return the crc value."""
         frame = self.data
         start = self.crcStart
         end = self.crcEnd
@@ -89,6 +101,7 @@ class Frame:
         return crc
 
     def crcAdd(self):
+        """Calculate and append the CRC to the frame class."""
         crc = self.crcCalc()
         start = self.crcEnd
         end = start - self.crcInit.bit_length()
@@ -96,7 +109,7 @@ class Frame:
         self.editFramevalue(crc, start, end)
 
     def crcCheck(self):
-        """checks crc of the frame , prints an error message in case of crc mismatch along with a 0"""
+        """Checks CRC of the frame , prints an error message in case of CRC mismatch also returns 0."""
         crc = self.crcCalc()
         start = self.crcEnd - 1
         end = start - self.crcInit.bit_length() + 1
@@ -107,6 +120,7 @@ class Frame:
         return 1
 
     def print(self):
+        """Prints out the hex value of the frame"""
         print(hex(self.data))
 
 
@@ -189,11 +203,16 @@ class SpiMaster:
         self._run_coroutine_obj = cocotb.start_soon(self._run())
 
     async def write(self, frame: Frame, addCrc=True):
-        """Adds crc to the frame and writes it with wait"""
+        """Write to the slave using the mosi line.
+        frame: The frame you want to write.
+        addCrc: Whether to addCrc or not."""
         await self.write_nowait(frame, addCrc)
         await self._idle.wait()
 
     async def write_nowait(self, frame: Frame, addCrc=True):
+        """Write to the slave using the mosi line without wait.
+        frame: The frame you want to write.
+        addCrc: Whether to addCrc or not."""
         if addCrc:
             frame.crcAdd()
         self.queue_tx.append(frame.data)
@@ -201,12 +220,16 @@ class SpiMaster:
         self._idle.clear()
 
     async def read(self, crcCheck=False):
+        """Read the output value from the miso line.
+        crcCheck: Whether to check the frame using crc or not."""
         while self.empty_rx():
             self.sync.clear()
             await self.sync.wait()
         return self.read_nowait(crcCheck)
 
     def read_nowait(self, crcCheck=False):
+        """Read the output value from the miso line without wait.
+        crcCheck: Whether to check the frame using crc or not."""
         if self._config.cpha:
             reg = self.queue_rx.pop()
         else:
