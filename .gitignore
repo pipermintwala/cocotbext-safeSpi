@@ -6,3 +6,11 @@
 /cocotbext_safeSpi.egg-info
 /cocotbext/safeSpi/__pycache__
 /cocotbext/safeSpi/_version.py
+/SafeSPI_specification_v1.0.pdf
+/tests/safeSpi.py
+/tests/test_inf/__pycache__
+/tests/test_inf/results.xml
+/tests/test_inf/spi_inf.vcd
+/tests/test_outf/__pycache__
+/tests/test_outf/results.xml
+/tests/test_outf/spi_outf.vcd

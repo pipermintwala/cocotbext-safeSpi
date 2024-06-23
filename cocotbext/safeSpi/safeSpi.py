@@ -33,6 +33,13 @@ class Frame:
             self.crcInit = 0b101
             self.crcStart, self.crcEnd = 31, 3  # Out-of-frame
 
+    def checkEquality(self, frame2):
+        """Return 1 for inEqual frames
+        frame2: Frame type"""
+        if self.data == frame2.data:
+            return 0
+        return 1
+
     def readBits(self, start, end, frame):
         """Reading bitvalues from a frame(data:int) given by the user,
         bitpositions start from 0.
@@ -109,19 +116,19 @@ class Frame:
         self.editFramevalue(crc, start, end)
 
     def crcCheck(self):
-        """Checks CRC of the frame , prints an error message in case of CRC mismatch also returns 0."""
+        """Checks CRC of the frame, in case of CRC mismatch returns 1."""
         crc = self.crcCalc()
         start = self.crcEnd - 1
         end = start - self.crcInit.bit_length() + 1
         crcGiven = self.readBitsvalue(start, end)
-        if crc != crcGiven:
-            print("\n!!!CRC CHECKSUM ERROR!!!\n")
-            return 0
-        return 1
 
-    def print(self):
-        """Prints out the hex value of the frame"""
-        print(hex(self.data))
+        if crc != crcGiven:
+            return 1
+        return 0
+
+    def hexVal(self):
+        """Returns the hex value of the frame"""
+        return hex(self.data)
 
 
 class SpiBus(Bus):
@@ -186,6 +193,8 @@ class SpiMaster:
         self._sclk.setimmediatevalue(int(self._config.cpol))
         self._mosi.setimmediatevalue(self._config.data_output_idle)
         self._cs.setimmediatevalue(1)
+        self.mode = self._config.cpha + 1
+        self.garbage = True
 
         self._SpiClock = _SpiClock(
             signal=self._sclk,
@@ -202,45 +211,54 @@ class SpiMaster:
             self._run_coroutine_obj.kill()
         self._run_coroutine_obj = cocotb.start_soon(self._run())
 
-    async def write(self, frame: Frame, addCrc=True):
+    async def write(self, frame: Frame, addCrc=False):
         """Write to the slave using the mosi line.
         frame: The frame you want to write.
         addCrc: Whether to addCrc or not."""
         await self.write_nowait(frame, addCrc)
         await self._idle.wait()
 
-    async def write_nowait(self, frame: Frame, addCrc=True):
+    async def write_nowait(self, frame: Frame, addCrc=False):
         """Write to the slave using the mosi line without wait.
         frame: The frame you want to write.
         addCrc: Whether to addCrc or not."""
         if addCrc:
             frame.crcAdd()
+
         self.queue_tx.append(frame.data)
         self.sync.set()
         self._idle.clear()
 
-    async def read(self, crcCheck=False):
+    async def write_zero(self):
+        frame = Frame(0)
+        await self.write(frame, addCrc=True)
+
+    async def read(self):
         """Read the output value from the miso line.
         crcCheck: Whether to check the frame using crc or not."""
         while self.empty_rx():
             self.sync.clear()
             await self.sync.wait()
-        return self.read_nowait(crcCheck)
+        return self.read_nowait()
 
-    def read_nowait(self, crcCheck=False):
-        """Read the output value from the miso line without wait.
-        crcCheck: Whether to check the frame using crc or not."""
-        if self._config.cpha:
+    def read_nowait(self):
+        """Read the output value from the miso line without wait."""
+        if self.mode == 2:
             reg = self.queue_rx.pop()
+            frame = Frame(reg, isInframe=True, isResponse=True)
         else:
+            if self.garbage:
+                self.queue_rx.pop()
+                self.garbage = False
+
             try:
-                reg = self.queue_rx.pop(-2)
+                reg = self.queue_rx.pop()
+                frame = Frame(reg, isInframe=False, isResponse=True)
+
             except Exception:
-                print("Wait for next frame for response")
+                self.log.warning("Wait for the next frame for response")
                 return
-        frame = Frame(reg, self._config, True)
-        if crcCheck:
-            frame.crcCheck()
+
         return frame
 
     def count_tx(self):
@@ -268,6 +286,12 @@ class SpiMaster:
     def _recieve(self):
         pass
 
+    def _get_miso(self):
+        try:
+            return self._miso.value.integer
+        except:
+            return 0
+
     async def _run(self):
         while True:
             while not self.queue_tx:
@@ -285,11 +309,11 @@ class SpiMaster:
             # https://en.wikipedia.org/wiki/Serial_Peripheral_Interface
             # this is also compliant with Linux Kernel definiton of SPI
             # if CPHA=0, the first bit is typically clocked out on edge of chip select
+            # set the chip select
+            self._cs.value = 0
             if not self._config.cpha:
                 self._mosi.value = bool(tx_word & (1 << self._config.frame_width - 1))
 
-            # set the chip select
-            self._cs.value = 0
             await Timer(self._SpiClock.period, units="step")
 
             await self._SpiClock.start()
@@ -305,7 +329,7 @@ class SpiMaster:
 
                     # while the in captures on the trailing edge of the clock
                     await Edge(self._sclk)
-                    rx_word |= bool(self._miso.value.integer) << (
+                    rx_word |= bool(self._get_miso()) << (
                         self._config.frame_width - 1 - k
                     )
             else:
@@ -313,7 +337,7 @@ class SpiMaster:
                 # we already clocked out one bit on edge of chip select, so we will clock out less bits
                 for k in range(self._config.frame_width - 1):
                     await Edge(self._sclk)
-                    rx_word |= bool(self._miso.value.integer) << (
+                    rx_word |= bool(self._get_miso()) << (
                         self._config.frame_width - 1 - k
                     )
 
@@ -325,7 +349,7 @@ class SpiMaster:
                 # but we haven't sampled enough times, so we will wait for another edge to sample
 
                 await Edge(self._sclk)
-                rx_word |= bool(self._miso.value.integer)
+                rx_word |= bool(self._get_miso())
 
             # set sclk back to idle state
             await self._SpiClock.stop()
