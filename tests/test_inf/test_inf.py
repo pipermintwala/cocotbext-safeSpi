@@ -1,6 +1,6 @@
 import cocotb
-from cocotbext.safeSpi import SpiMaster, SpiConfig, Frame, SpiBus
-from components import TB, ScoreBoard
+from cocotbext.safeSpi import Frame
+from components import TB
 
 testframes = [0x0F0F0F0A, 0x00000003, 0xFFFFFFF8, 0x0F0F0F0A, 0x0FF2C8FE]
 
