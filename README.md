@@ -8,6 +8,16 @@ GitHub repository: https://github.com/pipermintwala/cocotbext-safeSpi
 
 Initial build, interface for the master's side
 
+## RUNNING TESTS
+
+After installing the extension run MAKE inside tests/test_inf or tests/test_outf.
+
+The test matches the expected and output frames and also validates the CRC of recieved frame.
+
+Edit TB class for the different testBench config.
+
+The default CPOL value is 0 while CPHA = 0 sets the MODE 1 (OUT_OF_FRAME) and CPHA = 1 sets the MODE 2 (IN_FRAME).
+
 ## Documentation
 
 The classes `SpiConfig` and `SpiMaster` are largely based on schang412's [repo](https://github.com/schang412/cocotbext-spi).
@@ -71,6 +81,7 @@ The `cpha` parameter for the config decides if the read command returns the imme
 To configure the master as in-frame:
 
     from cocotbext.safeSpi import SpiConfig, SpiMaster
+    
     @cocotb.test()
     async def dut_test(dut):
         config = SpiConfig(cpha=1)
