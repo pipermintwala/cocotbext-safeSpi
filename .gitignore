@@ -11,6 +11,9 @@
 /tests/test_inf/__pycache__
 /tests/test_inf/results.xml
 /tests/test_inf/spi_inf.vcd
+/tests/test_inf/sim_build
 /tests/test_outf/__pycache__
 /tests/test_outf/results.xml
 /tests/test_outf/spi_outf.vcd
+/tests/test_outf/sim_build
+
