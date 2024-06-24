@@ -14,9 +14,10 @@ After installing the extension run `MAKE` inside `tests/test_inf` or `tests/test
 
 The test matches the expected and output frames and also validates the CRC of recieved frame.
 
-Edit TB class for the different testBench config.
+Edit `TB` class in `components.py` for the different testBench config.
 
-The default `CPOL` value is 0 while `CPHA = 0` sets the `MODE` 1 (OUT_OF_FRAME) and `CPHA = 1` sets the `MODE 2` (IN_FRAME).
+The default `CPOL` value is 0 while `CPHA = 0` sets the `MODE 1` (OUT_OF_FRAME) and `CPHA = 1` sets the 
+`MODE 2` (IN_FRAME).
 
 ## Documentation
 
