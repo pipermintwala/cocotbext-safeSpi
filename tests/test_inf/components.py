@@ -6,8 +6,8 @@ from cocotb.triggers import Timer
 class TB:
     def __init__(self, dut):
         self.dut = dut
-        self.Scoreboard = ScoreBoard()
-        self.spi_config = SpiConfig()
+        self.scoreboard = ScoreBoard()
+        self.spi_config = SpiConfig(cpha=1)  # cpol stays zero
         self.spi_bus = SpiBus.from_entity(self.dut)
         self.spi_master = SpiMaster(self.spi_bus, self.spi_config)
 
@@ -37,16 +37,20 @@ class ScoreBoard:
         self.output_expected.append(expected)
 
     def check_scoreboard(self):
+        output_ls = self.output.copy()
+        output_expected_ls = self.output_expected.copy()
+        self.output.clear()
+        self.output_expected.clear()
 
-        if len(self.output) != len(self.output_expected):
+        if len(output_ls) != len(output_expected_ls):
             self.log.warning(
-                f"Still expecting {len(self.output_expected) - len(self.output)} transactions on dut"
+                f"Still expecting {len(output_expected_ls) - len(output_ls)} transactions on dut"
             )
 
             self.errors += 1
 
         else:
-            for i, j in zip(self.output, self.output_expected):
+            for i, j in zip(output_ls, output_expected_ls):
 
                 if i.checkEquality(j):
                     self.log.warning(
@@ -63,4 +67,5 @@ class ScoreBoard:
                 f"Errors were recorded during the test,Total {self.errors} errors."
             )
             assert False
+        self.log.warning(f"NO errors were recorded during the test.")
         assert True

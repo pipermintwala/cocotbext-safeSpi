@@ -9,13 +9,23 @@ module spi_slave_inf (input wire cs,   // Chip select (active low)
             
         end
     end
+    // reg buff;
     always@(rst)begin
         if (rst)begin
             miso <= 1'bz;
         end
     end
-    always @(posedge sclk) begin
-        miso <= mosi;
+    // always @(negedge sclk)begin
+    //     if (!cs)begin
+    //         buff <= mosi;
+    
+    //     end
+    // end
+    always @(*) begin
+        if (!cs)begin
+            miso <= mosi;
+        end
+        
     end
     initial begin
         $dumpfile("spi_inf.vcd");

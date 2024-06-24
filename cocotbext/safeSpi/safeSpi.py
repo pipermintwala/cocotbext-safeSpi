@@ -233,19 +233,19 @@ class SpiMaster:
         frame = Frame(0)
         await self.write(frame, addCrc=True)
 
-    async def read(self):
+    async def read(self, isReponse=True):
         """Read the output value from the miso line.
         crcCheck: Whether to check the frame using crc or not."""
         while self.empty_rx():
             self.sync.clear()
             await self.sync.wait()
-        return self.read_nowait()
+        return self.read_nowait(isReponse)
 
-    def read_nowait(self):
+    def read_nowait(self, isResponse=True):
         """Read the output value from the miso line without wait."""
         if self.mode == 2:
             reg = self.queue_rx.pop()
-            frame = Frame(reg, isInframe=True, isResponse=True)
+            frame = Frame(reg, isInframe=True, isResponse=isResponse)
         else:
             if self.garbage:
                 self.queue_rx.pop()
@@ -253,7 +253,7 @@ class SpiMaster:
 
             try:
                 reg = self.queue_rx.pop()
-                frame = Frame(reg, isInframe=False, isResponse=True)
+                frame = Frame(reg, isInframe=False, isResponse=isResponse)
 
             except Exception:
                 self.log.warning("Wait for the next frame for response")
