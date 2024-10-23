@@ -17,7 +17,6 @@ async def dut_test_inf_command(dut):
         tb.scoreboard.output_callback(command)
         tb.scoreboard.output_expected_callback(frame)
     tb.scoreboard.check_scoreboard()
-    await tb.dut_reset()
 
 
 @cocotb.test()
@@ -32,4 +31,5 @@ async def dut_test_inf_response(dut):
         tb.scoreboard.output_callback(command)
         tb.scoreboard.output_expected_callback(frame)
     tb.scoreboard.check_scoreboard()
-    await tb.dut_reset()
+
+    
